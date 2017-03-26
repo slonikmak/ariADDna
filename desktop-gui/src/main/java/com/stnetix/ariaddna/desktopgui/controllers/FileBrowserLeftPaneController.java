@@ -20,10 +20,10 @@ import java.util.ResourceBundle;
  * @author slonikmak
  */
 @Component
-public class TreeViewLeftPaneController implements IGuiController, Initializable {
-    MainController mainController;
-    FXMLLoaderProvider provider;
-    TreeViewFactory treeViewFactory;
+public class FileBrowserLeftPaneController implements IGuiController, Initializable {
+    private MainController mainController;
+    private FXMLLoaderProvider provider;
+    private TreeViewFactory treeViewFactory;
 
     @FXML
     private AnchorPane treeViewContainer;
@@ -76,7 +76,7 @@ public class TreeViewLeftPaneController implements IGuiController, Initializable
         /*
          * TODO: replace to getting elements from Repository
          */
-        treeViewContainer.getChildren().add(treeViewFactory.getSimple());
+        treeViewContainer.getChildren().add(treeViewFactory.getFileBrowserTreeView());
 
     }
 }

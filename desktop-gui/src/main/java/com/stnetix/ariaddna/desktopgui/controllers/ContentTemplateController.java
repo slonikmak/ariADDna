@@ -1,10 +1,14 @@
 package com.stnetix.ariaddna.desktopgui.controllers;
 
+import com.stnetix.ariaddna.desktopgui.views.SimpleTreeElement;
+import com.stnetix.ariaddna.desktopgui.views.TreeViewFactory;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
-import javafx.scene.layout.StackPane;
+import org.controlsfx.control.BreadCrumbBar;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.net.URL;
@@ -16,7 +20,8 @@ import java.util.ResourceBundle;
  * @author slonikmak
  */
 @Component
-public class SettingsTemplateController implements IGuiController, Initializable {
+public class ContentTemplateController implements IGuiController, Initializable {
+    private TreeViewFactory treeViewFactory;
 
     @FXML
     private Label historyPath;
@@ -25,10 +30,18 @@ public class SettingsTemplateController implements IGuiController, Initializable
     private Label header;
 
     @FXML
-    private StackPane content;
+    private AnchorPane content;
+
+    @FXML
+    private AnchorPane breadCrumbContainer;
+
+    private BreadCrumbBar<SimpleTreeElement> breadCrumb;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        breadCrumb = treeViewFactory.getBreadCrumbBar();
+        breadCrumbContainer.getChildren().clear();
+        breadCrumbContainer.getChildren().add(breadCrumb);
     }
 
     /**
@@ -46,8 +59,16 @@ public class SettingsTemplateController implements IGuiController, Initializable
      * @param addedContent
      */
     public void setContent(Pane addedContent){
+        content.getChildren().clear();
         content.getChildren().addAll(addedContent);
     }
 
+    public AnchorPane getBreadCrumbContainer() {
+        return breadCrumbContainer;
+    }
 
+    @Autowired
+    public void setTreeViewFactory(TreeViewFactory factory) {
+        this.treeViewFactory = factory;
+    }
 }

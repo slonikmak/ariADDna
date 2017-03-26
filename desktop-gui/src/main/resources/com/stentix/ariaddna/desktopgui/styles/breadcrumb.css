@@ -1,0 +1,53 @@
+bread-crumb-bar {
+    -fx-background-color: transparent;
+
+}
+
+.bread-crumb-bar .button {
+    -fx-padding: 8 5 8 5;
+    -fx-border-color: null;
+    -fx-border-insets: 0;
+    -fx-content-display: left;
+    -fx-background-position: left center;
+    -fx-background-repeat: no-repeat;
+    /*-fx-background-image: url("/img/crumb.png");*/
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-shape: null;
+    -fx-font-size: 0.9em;
+}
+
+.bread-crumb-bar .first {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    /*-fx-font-size: 1.11em;*/
+    -fx-text-fill: #000;
+    -fx-background-image: null;
+    -fx-shape: null;
+    -fx-padding: 8 5 8 10;
+}
+
+.bread-crumb-bar .glyph-icon {
+    -glyph-size: 14px;
+    /*-glyph-name: "CLOUD";
+        -icons-color: blue;
+        -fx-fill: linear-gradient(-icons-color 0%,
+            derive(-icons-color, 100%) 30%, derive(blueviolet, 30%) 85%);*/
+}
+
+.bread-crumb-bar .first .glyph-icon {
+    -fx-fill: transparent;
+}
+
+.crumb {
+    -fx-text-fill: #000;
+}
+
+.crumb:hover,
+.crumb:selected,
+.crumb:focused {
+    -fx-background-color: rgba(0, 0, 0, 0.1);
+    -fx-border-color: null;
+    /*-fx-font-size: 1.11em;*/
+    -fx-text-fill: rgba(0, 0, 0, 0.5);
+}

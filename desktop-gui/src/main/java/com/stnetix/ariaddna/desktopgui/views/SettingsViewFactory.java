@@ -1,7 +1,7 @@
 package com.stnetix.ariaddna.desktopgui.views;
 
 
-import com.stnetix.ariaddna.desktopgui.controllers.SettingsTemplateController;
+import com.stnetix.ariaddna.desktopgui.controllers.ContentTemplateController;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.layout.Pane;
@@ -26,7 +26,7 @@ public enum  SettingsViewFactory {
     private String header;
 
     private String fullPath = "/com/stentix/ariaddna/desktopgui/fxmlViews/";
-    private String template = "settingsTemplate.fxml";
+    private String template = "contentTemplate.fxml";
 
     SettingsViewFactory(String name, String fileName, String header){
         this.name = name;
@@ -44,7 +44,7 @@ public enum  SettingsViewFactory {
         FXMLLoader fxmlLoader = loader.get(fullPath+template);
         Pane parent = fxmlLoader.load();
 
-        SettingsTemplateController controller = fxmlLoader.getController();
+        ContentTemplateController controller = fxmlLoader.getController();
         controller.setHeaders(header, name);
         controller.setContent(loader.get(fullPath+fileName).load());
         return parent;

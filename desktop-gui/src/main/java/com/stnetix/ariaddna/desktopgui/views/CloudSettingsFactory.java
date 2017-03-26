@@ -1,6 +1,6 @@
 package com.stnetix.ariaddna.desktopgui.views;
 
-import com.stnetix.ariaddna.desktopgui.controllers.SettingsTemplateController;
+import com.stnetix.ariaddna.desktopgui.controllers.ContentTemplateController;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.layout.Pane;
@@ -39,12 +39,12 @@ public class CloudSettingsFactory {
      * @throws IOException
      */
     public Node getNode(String value, FXMLLoaderProvider loaderProvider) throws IOException {
-        FXMLLoader fxmlLoader = loaderProvider.get("/com/stentix/ariaddna/desktopgui/fxmlViews/settingsTemplate.fxml");
+        FXMLLoader fxmlLoader = loaderProvider.get("/com/stentix/ariaddna/desktopgui/fxmlViews/contentTemplate.fxml");
         Pane parent = fxmlLoader.load();
 
         Clouds elem = Clouds.valueOf(value);
 
-        SettingsTemplateController controller = fxmlLoader.getController();
+        ContentTemplateController controller = fxmlLoader.getController();
         controller.setHeaders(elem.header, elem.name);
         controller.setContent(loaderProvider.get("/com/stentix/ariaddna/desktopgui/fxmlViews/cloudSettingsView.fxml").load());
         return parent;

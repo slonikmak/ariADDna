@@ -16,7 +16,7 @@ import java.util.ResourceBundle;
  * Controller for left pane settings view
  */
 @Component
-public class LeftPaneSettingsController implements IGuiController, Initializable{
+public class SettingsLeftPaneController implements IGuiController, Initializable {
     private MainController mainController;
     private FXMLLoaderProvider loaderProvider;
     private TreeViewFactory treeViewFactory;
@@ -81,11 +81,14 @@ public class LeftPaneSettingsController implements IGuiController, Initializable
      */
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        TreeView<SimpleTreeElement> tree = treeViewFactory.getSettingsTree();
+        TreeView<SimpleTreeElement> tree = treeViewFactory.getSettingsTreeView();
         tree.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null){
                 String value = newValue.getValue().getName();
-                if (!newValue.getParent().getValue().getName().equals("root")){
+                //FIXME: create listener for click on root element("Settings")
+                if (newValue.getParent() == null) return;
+
+                if (!newValue.getParent().getValue().getName().equals("Settings")) {
                     try {
                         mainController.setCenterBorderContent(cloudSettingsFactory.getNode(value.toUpperCase().replace(" ","_"), loaderProvider));
                     } catch (IOException e) {

@@ -1,11 +1,18 @@
 package com.stnetix.ariaddna.desktopgui.views;
 
+import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
+import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
+import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
+import javafx.collections.ListChangeListener;
 import javafx.css.PseudoClass;
+import javafx.scene.control.Button;
 import javafx.scene.control.TreeCell;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
+import org.controlsfx.control.BreadCrumbBar;
 import org.springframework.stereotype.Component;
 
 /**
@@ -16,6 +23,53 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class TreeViewFactory {
+
+    //Current treeView element property
+    private ObjectProperty<TreeView<SimpleTreeElement>> currentTree = new SimpleObjectProperty<>();
+
+    //represent Bread Crumb Bar navigation elem
+    private BreadCrumbBar<SimpleTreeElement> breadCrumbBar;
+
+    /**
+     * constructor, init breadCrumbBar and bind it to currentTree
+     * when changed selected tree item the selected crumb bar element will changed to
+     */
+    public TreeViewFactory() {
+        breadCrumbBar = new BreadCrumbBar<>();
+
+        breadCrumbBar.setCrumbFactory(treeItem -> {
+            if (treeItem.getParent() == treeItem) System.out.println("root");
+            FontAwesomeIconView icon = new FontAwesomeIconView(FontAwesomeIcon.ANGLE_RIGHT);
+            icon.setGlyphSize(20);
+            Button btn = new Button(treeItem.getValue().getName());
+            btn.setGraphic(icon);
+            return btn;
+        });
+
+        currentTree.addListener((observable, oldValue, newValue) -> {
+            setTreeViewSelectedListener();
+            TreeItem<SimpleTreeElement> firstElem = newValue.getTreeItem(0);
+            setSelectedCrumbElem(firstElem);
+        });
+
+
+    }
+
+    /**
+     * bind selected tree item and selected bread crumb bar elements
+     */
+    private void setTreeViewSelectedListener() {
+        currentTree.getValue().getSelectionModel().getSelectedItems().addListener((ListChangeListener<TreeItem<SimpleTreeElement>>) c -> {
+            c.next();
+            setSelectedCrumbElem(c.getList().get(0));
+        });
+
+        breadCrumbBar.selectedCrumbProperty().addListener((observable, oldValue, newValue) -> {
+            currentTree.getValue().getSelectionModel().select(newValue);
+
+        });
+    }
+
     /**
      * temporary method
      *
@@ -97,14 +151,15 @@ public class TreeViewFactory {
      *
      * @return tree view
      */
-    public TreeView<SimpleTreeElement> getSimple() {
+    public TreeView<SimpleTreeElement> getFileBrowserTreeView() {
         TreeView<SimpleTreeElement> tree = new TreeView<>();
-        TreeItem<SimpleTreeElement> root = new TreeItem<>(new SimpleTreeElement("root", 0));
+        TreeItem<SimpleTreeElement> root = new TreeItem<>(new SimpleTreeElement("Files", 0));
 
         TreeItem<SimpleTreeElement> outer1, outer2, inner1, inner2;
         outer1 = makeBranch(new SimpleTreeElement("Folder1", 1), root);
-        outer2 = makeBranch(new SimpleTreeElement("Documents", 2), root);
-        makeBranch(new SimpleTreeElement("MyFotos", 3), outer1);
+        makeBranch(new SimpleTreeElement("Documents", 2), root);
+        outer2 = makeBranch(new SimpleTreeElement("MyFotos", 3), outer1);
+        makeBranch(new SimpleTreeElement("NewFolder", 7), outer2);
         makeBranch(new SimpleTreeElement("OtherFiles", 4), outer1);
         makeBranch(new SimpleTreeElement("WorkFiles", 5), root);
         makeBranch(new SimpleTreeElement("Projects", 6), root);
@@ -113,11 +168,18 @@ public class TreeViewFactory {
         tree.setPrefWidth(200);
 
         setTreeCellFactory(tree);
-
-
         tree.setShowRoot(false);
+        currentTree.setValue(tree);
         return tree;
+    }
 
+    /**
+     * select element in bread crumb bar
+     *
+     * @param elem selected item
+     */
+    private void setSelectedCrumbElem(TreeItem<SimpleTreeElement> elem) {
+        breadCrumbBar.selectedCrumbProperty().set(elem);
     }
 
     /**
@@ -126,9 +188,9 @@ public class TreeViewFactory {
      *
      * @return tree view
      */
-    public TreeView<SimpleTreeElement> getSettingsTree() {
+    public TreeView<SimpleTreeElement> getSettingsTreeView() {
         TreeView<SimpleTreeElement> tree = new TreeView<>();
-        TreeItem<SimpleTreeElement> root = new TreeItem<>(new SimpleTreeElement("root", 0));
+        TreeItem<SimpleTreeElement> root = new TreeItem<>(new SimpleTreeElement("Settings", 0));
 
         TreeItem<SimpleTreeElement> outer1, outer2, inner1, inner2;
         outer1 = makeBranch(new SimpleTreeElement("Account", 1), root);
@@ -145,7 +207,7 @@ public class TreeViewFactory {
 
 
         tree.setShowRoot(false);
-
+        currentTree.setValue(tree);
         return tree;
     }
 
@@ -176,5 +238,12 @@ public class TreeViewFactory {
                 System.out.println(newValue.getValue());
             }
         });
+    }
+
+    /**
+     * @return bread crumb bar
+     */
+    public BreadCrumbBar<SimpleTreeElement> getBreadCrumbBar() {
+        return breadCrumbBar;
     }
 }

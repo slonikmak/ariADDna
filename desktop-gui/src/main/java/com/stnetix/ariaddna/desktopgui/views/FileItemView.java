@@ -10,12 +10,12 @@ import javafx.scene.layout.VBox;
  * @author slonikmak
  * TODO: replace with a real VUFS item class
  */
-public class FileItem extends VBox {
+public class FileItemView extends VBox {
     private FontAwesomeIconView icon;
     private Label fileName;
     private String name;
 
-    public FileItem(String icon, String fileName) {
+    public FileItemView(String icon, String fileName) {
         super();
         this.name = fileName;
         this.icon = new FontAwesomeIconView(FontAwesomeIcon.FOLDER_ALT);

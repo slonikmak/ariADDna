@@ -1,13 +1,17 @@
 package com.stnetix.ariaddna.desktopgui.views;
 
+import com.stnetix.ariaddna.desktopgui.models.FileBrowserElement;
+
+import java.nio.file.Path;
+
 /**
  * Simple model for create a files tree view
  * TODO: replace with VUFS item
  * @author slonikmak
  */
-public class SimpleTreeElement {
+public class SimpleTreeElement implements FileBrowserElement{
     private String name;
-    private int id;
+    private long id;
 
     public SimpleTreeElement(String name, int id) {
         this.name = name;
@@ -18,8 +22,18 @@ public class SimpleTreeElement {
         return name;
     }
 
-    public int getId() {
+    public long getId() {
         return id;
+    }
+
+    @Override
+    public Path getRootPath() {
+        return null;
+    }
+
+    @Override
+    public Path getPath() {
+        return null;
     }
 
     @Override

@@ -13,6 +13,7 @@ import org.springframework.stereotype.Repository;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -24,17 +25,17 @@ public class FilesRepository {
      * temporary file items repository
      * TODO: replace for getting file items from VUFS
      */
-    private ObservableList<FileItem> allFiles = FXCollections.observableArrayList();
-    private ObjectProperty<FileItem> currentRoot = new SimpleObjectProperty<>();
-    //private FilteredList<FileItem> currentFiles = new FilteredList<>(allFiles, fileItem -> !currentRoot.isNull().get() && fileItem.getParent().equals(currentRoot.getValue()));
-    private ObservableList<FileItem> currentFiles = FXCollections.observableArrayList();
+    private ObservableList<FileBrowserElement> allFiles = FXCollections.observableArrayList();
+    private ObjectProperty<FileBrowserElement> currentRoot = new SimpleObjectProperty<>();
+    private ObservableList<FileBrowserElement> currentFiles = FXCollections.observableArrayList();
 
     public FilesRepository(){
         fillFilesSet();
 
-        currentRoot.addListener(new ChangeListener<FileItem>() {
+        currentRoot.addListener(new ChangeListener<FileBrowserElement>() {
+
             @Override
-            public void changed(ObservableValue<? extends FileItem> observable, FileItem oldValue, FileItem newValue) {
+            public void changed(ObservableValue<? extends FileBrowserElement> observable, FileBrowserElement oldValue, FileBrowserElement newValue) {
                 currentFiles.clear();
                 currentFiles.addAll(allFiles.stream().filter(fileItem -> {
                     return fileItem.getRootPath().equals(newValue.getPath());
@@ -54,15 +55,21 @@ public class FilesRepository {
                 "/root/Docs/Office", "/root/Docs/Work", "/root/Docs/Work/file1.jpg","/root/Docs/Work/file2.jpg");
     }
 
+    public List<FileBrowserElement> getSubFiles(FileItem element){
+        return allFiles.stream().filter(fileItem -> {
+            return fileItem.getPath().equals(element.getPath());
+        }).collect(Collectors.toList());
+    }
+
     public void addFileItems(String ...items){
         Arrays.stream(items).forEach(item->allFiles.add(new FileItem(item)));
     }
 
-    public FileItem getCurrentRoot() {
+    public FileBrowserElement getCurrentRoot() {
         return currentRoot.get();
     }
 
-    public void setCurrentRoot(FileItem currentRoot) {
+    public void setCurrentRoot(FileBrowserElement currentRoot) {
         this.currentRoot.set(currentRoot);
     }
 
@@ -70,11 +77,11 @@ public class FilesRepository {
         setCurrentRoot(allFiles.filtered(fileItem -> fileItem.getPath().equals(path)).get(0));
     }
 
-    public ObjectProperty<FileItem> currentRootProperty() {
+    public ObjectProperty<FileBrowserElement> currentRootProperty() {
         return currentRoot;
     }
 
-    public ObservableList<FileItem> getCurrentFiles() {
+    public ObservableList<FileBrowserElement> getCurrentFiles() {
         return currentFiles;
     }
 }

@@ -1,5 +1,7 @@
 package com.stnetix.ariaddna.desktopgui.views;
 
+import com.stnetix.ariaddna.desktopgui.models.FileBrowserElement;
+import com.stnetix.ariaddna.desktopgui.models.FilesRepository;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import javafx.beans.property.ObjectProperty;
@@ -13,6 +15,7 @@ import javafx.scene.control.TreeCell;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import org.controlsfx.control.BreadCrumbBar;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -24,11 +27,13 @@ import org.springframework.stereotype.Component;
 @Component
 public class TreeViewFactory {
 
+    private FilesRepository repository;
+
     //Current treeView element property
-    private ObjectProperty<TreeView<SimpleTreeElement>> currentTree = new SimpleObjectProperty<>();
+    private ObjectProperty<TreeView<FileBrowserElement>> currentTree = new SimpleObjectProperty<>();
 
     //represent Bread Crumb Bar navigation elem
-    private BreadCrumbBar<SimpleTreeElement> breadCrumbBar;
+    private BreadCrumbBar<FileBrowserElement> breadCrumbBar;
 
     /**
      * constructor, init breadCrumbBar and bind it to currentTree
@@ -48,7 +53,7 @@ public class TreeViewFactory {
 
         currentTree.addListener((observable, oldValue, newValue) -> {
             setTreeViewSelectedListener();
-            TreeItem<SimpleTreeElement> firstElem = newValue.getTreeItem(0);
+            TreeItem<FileBrowserElement> firstElem = newValue.getTreeItem(0);
             setSelectedCrumbElem(firstElem);
         });
 
@@ -59,14 +64,23 @@ public class TreeViewFactory {
      * bind selected tree item and selected bread crumb bar elements
      */
     private void setTreeViewSelectedListener() {
-        currentTree.getValue().getSelectionModel().getSelectedItems().addListener((ListChangeListener<TreeItem<SimpleTreeElement>>) c -> {
+        currentTree.getValue().getSelectionModel().getSelectedItems().addListener((ListChangeListener<TreeItem<FileBrowserElement>>) c -> {
             c.next();
-            setSelectedCrumbElem(c.getList().get(0));
+            TreeItem<FileBrowserElement> selected = c.getList().get(0);
+            setSelectedCrumbElem(selected);
         });
 
         breadCrumbBar.selectedCrumbProperty().addListener((observable, oldValue, newValue) -> {
             currentTree.getValue().getSelectionModel().select(newValue);
 
+        });
+    }
+
+    private void loadChildren(TreeItem<FileBrowserElement> treeItem){
+                FileBrowserElement element = treeItem.getValue();
+        repository.setCurrentRoot(element);
+        repository.getCurrentFiles().forEach(element1 -> {
+            makeBranch(element, treeItem);
         });
     }
 
@@ -139,8 +153,8 @@ public class TreeViewFactory {
      * @param root    root element
      * @return new branch
      */
-    private TreeItem<SimpleTreeElement> makeBranch(SimpleTreeElement element, TreeItem<SimpleTreeElement> root) {
-        TreeItem<SimpleTreeElement> newBranch = new TreeItem<>(element);
+    private TreeItem<FileBrowserElement> makeBranch(FileBrowserElement element, TreeItem<FileBrowserElement> root) {
+        TreeItem<FileBrowserElement> newBranch = new TreeItem<>(element);
         root.getChildren().add(newBranch);
         return newBranch;
     }
@@ -151,18 +165,22 @@ public class TreeViewFactory {
      *
      * @return tree view
      */
-    public TreeView<SimpleTreeElement> getFileBrowserTreeView() {
-        TreeView<SimpleTreeElement> tree = new TreeView<>();
-        TreeItem<SimpleTreeElement> root = new TreeItem<>(new SimpleTreeElement("Files", 0));
+    public TreeView<FileBrowserElement> getFileBrowserTreeView() {
+        TreeView<FileBrowserElement> tree = new TreeView<>();
+        TreeItem<FileBrowserElement> root = new TreeItem<>(repository.getCurrentRoot());
 
-        TreeItem<SimpleTreeElement> outer1, outer2, inner1, inner2;
+        repository.getCurrentFiles().forEach(fileItem -> {
+            makeBranch(fileItem, root);
+        });
+
+       /* TreeItem<FileBrowserElement> outer1, outer2, inner1, inner2;
         outer1 = makeBranch(new SimpleTreeElement("Folder1", 1), root);
         makeBranch(new SimpleTreeElement("Documents", 2), root);
         outer2 = makeBranch(new SimpleTreeElement("MyFotos", 3), outer1);
         makeBranch(new SimpleTreeElement("NewFolder", 7), outer2);
         makeBranch(new SimpleTreeElement("OtherFiles", 4), outer1);
         makeBranch(new SimpleTreeElement("WorkFiles", 5), root);
-        makeBranch(new SimpleTreeElement("Projects", 6), root);
+        makeBranch(new SimpleTreeElement("Projects", 6), root);*/
 
         tree.setRoot(root);
         tree.setPrefWidth(200);
@@ -178,7 +196,7 @@ public class TreeViewFactory {
      *
      * @param elem selected item
      */
-    private void setSelectedCrumbElem(TreeItem<SimpleTreeElement> elem) {
+    private void setSelectedCrumbElem(TreeItem<FileBrowserElement> elem) {
         breadCrumbBar.selectedCrumbProperty().set(elem);
     }
 
@@ -188,11 +206,11 @@ public class TreeViewFactory {
      *
      * @return tree view
      */
-    public TreeView<SimpleTreeElement> getSettingsTreeView() {
-        TreeView<SimpleTreeElement> tree = new TreeView<>();
-        TreeItem<SimpleTreeElement> root = new TreeItem<>(new SimpleTreeElement("Settings", 0));
+    public TreeView<FileBrowserElement> getSettingsTreeView() {
+        TreeView<FileBrowserElement> tree = new TreeView<>();
+        TreeItem<FileBrowserElement> root = new TreeItem<>(new SimpleTreeElement("Settings", 0));
 
-        TreeItem<SimpleTreeElement> outer1, outer2, inner1, inner2;
+        TreeItem<FileBrowserElement> outer1, outer2, inner1, inner2;
         outer1 = makeBranch(new SimpleTreeElement("Account", 1), root);
         outer2 = makeBranch(new SimpleTreeElement("Clouds", 2), root);
         makeBranch(new SimpleTreeElement("Dropbox", 3), outer2);
@@ -216,10 +234,10 @@ public class TreeViewFactory {
      *
      * @param tree treeView
      */
-    private void setTreeCellFactory(TreeView<SimpleTreeElement> tree) {
-        tree.setCellFactory(param -> new TreeCell<SimpleTreeElement>() {
+    private void setTreeCellFactory(TreeView<FileBrowserElement> tree) {
+        tree.setCellFactory(param -> new TreeCell<FileBrowserElement>() {
             @Override
-            public void updateItem(SimpleTreeElement item, boolean empty) {
+            public void updateItem(FileBrowserElement item, boolean empty) {
                 super.updateItem(item, empty);
                 //setDisclosureNode(null);
 
@@ -243,7 +261,12 @@ public class TreeViewFactory {
     /**
      * @return bread crumb bar
      */
-    public BreadCrumbBar<SimpleTreeElement> getBreadCrumbBar() {
+    public BreadCrumbBar<FileBrowserElement> getBreadCrumbBar() {
         return breadCrumbBar;
+    }
+
+    @Autowired
+    public void setRepository(FilesRepository repository) {
+        this.repository = repository;
     }
 }

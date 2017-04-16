@@ -35,6 +35,7 @@ public class FilesRepositoryTest {
 
     @Test
     public void getCurrentFilesAndGetRootPathTest(){
+        repository.setCurrentRoot(Paths.get("/root"));
         Assertions.assertEquals(Paths.get("/root"), repository.getCurrentFiles().get(0).getRootPath());
     }
 }

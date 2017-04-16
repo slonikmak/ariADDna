@@ -1,5 +1,6 @@
 package com.stnetix.ariaddna.desktopgui.controllers;
 
+import com.stnetix.ariaddna.desktopgui.models.FileBrowserElement;
 import com.stnetix.ariaddna.desktopgui.views.*;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -81,7 +82,7 @@ public class SettingsLeftPaneController implements IGuiController, Initializable
      */
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        TreeView<SimpleTreeElement> tree = treeViewFactory.getSettingsTreeView();
+        TreeView<FileBrowserElement> tree = treeViewFactory.getSettingsTreeView();
         tree.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null){
                 String value = newValue.getValue().getName();

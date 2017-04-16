@@ -1,5 +1,6 @@
 package com.stnetix.ariaddna.desktopgui.controllers;
 
+import com.stnetix.ariaddna.desktopgui.models.FileBrowserElement;
 import com.stnetix.ariaddna.desktopgui.models.FileItem;
 import com.stnetix.ariaddna.desktopgui.models.FilesRepository;
 import com.stnetix.ariaddna.desktopgui.views.FileItemView;
@@ -29,7 +30,7 @@ public class FileBrowserController implements IGuiController, Initializable {
     @FXML
     private StackPane container;
 
-    GridView<FileItem> myGrid;
+    GridView<FileBrowserElement> myGrid;
 
 
     /**
@@ -40,9 +41,9 @@ public class FileBrowserController implements IGuiController, Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         myGrid = new GridView<>(repository.getCurrentFiles());
-        myGrid.setCellFactory(gridView -> new GridCell<FileItem>() {
+        myGrid.setCellFactory(gridView -> new GridCell<FileBrowserElement>() {
             @Override
-            public void updateItem(FileItem item, boolean empty) {
+            public void updateItem(FileBrowserElement item, boolean empty) {
                 if (empty || item == null) {
                     setText(null);
                     setGraphic(null);

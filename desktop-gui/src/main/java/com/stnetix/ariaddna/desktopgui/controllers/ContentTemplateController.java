@@ -1,5 +1,6 @@
 package com.stnetix.ariaddna.desktopgui.controllers;
 
+import com.stnetix.ariaddna.desktopgui.models.FileBrowserElement;
 import com.stnetix.ariaddna.desktopgui.views.SimpleTreeElement;
 import com.stnetix.ariaddna.desktopgui.views.TreeViewFactory;
 import javafx.fxml.FXML;
@@ -35,7 +36,7 @@ public class ContentTemplateController implements IGuiController, Initializable 
     @FXML
     private AnchorPane breadCrumbContainer;
 
-    private BreadCrumbBar<SimpleTreeElement> breadCrumb;
+    private BreadCrumbBar<FileBrowserElement> breadCrumb;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {

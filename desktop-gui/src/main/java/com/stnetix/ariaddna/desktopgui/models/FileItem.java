@@ -8,10 +8,11 @@ import java.nio.file.Paths;
 /**
  * @autor slonikmak on 01.04.2017.
  */
-public class FileItem {
+public class FileItem implements FileBrowserElement{
     private Path path;
     private String name;
     FileItem parent;
+    long id;
 
     FileItem(){
 
@@ -33,8 +34,14 @@ public class FileItem {
         this.path = path;
     }
 
+    @Override
     public String getName() {
         return path.getFileName().toString();
+    }
+
+    @Override
+    public long getId() {
+        return id;
     }
 
     public void setName(String name) {

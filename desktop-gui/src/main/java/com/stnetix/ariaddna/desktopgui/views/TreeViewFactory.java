@@ -1,6 +1,7 @@
 package com.stnetix.ariaddna.desktopgui.views;
 
 import com.stnetix.ariaddna.desktopgui.models.FileBrowserElement;
+import com.stnetix.ariaddna.desktopgui.models.FileItem;
 import com.stnetix.ariaddna.desktopgui.models.FilesRepository;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
@@ -43,10 +44,11 @@ public class TreeViewFactory {
         breadCrumbBar = new BreadCrumbBar<>();
 
         breadCrumbBar.setCrumbFactory(treeItem -> {
-            if (treeItem.getParent() == treeItem) System.out.println("root");
+            //if (treeItem.getParent() == treeItem) System.out.println("root");
             FontAwesomeIconView icon = new FontAwesomeIconView(FontAwesomeIcon.ANGLE_RIGHT);
             icon.setGlyphSize(20);
-            Button btn = new Button(treeItem.getValue().getName());
+            String name = treeItem.getValue().getName().equals("root")?"Files":treeItem.getValue().getName();
+            Button btn = new Button(name);
             btn.setGraphic(icon);
             return btn;
         });
@@ -67,22 +69,150 @@ public class TreeViewFactory {
         currentTree.getValue().getSelectionModel().getSelectedItems().addListener((ListChangeListener<TreeItem<FileBrowserElement>>) c -> {
             c.next();
             TreeItem<FileBrowserElement> selected = c.getList().get(0);
+            repository.setCurrentParent(selected.getValue());
             setSelectedCrumbElem(selected);
+            loadChildren(selected);
         });
 
         breadCrumbBar.selectedCrumbProperty().addListener((observable, oldValue, newValue) -> {
             currentTree.getValue().getSelectionModel().select(newValue);
-
         });
     }
 
-    private void loadChildren(TreeItem<FileBrowserElement> treeItem){
-                FileBrowserElement element = treeItem.getValue();
-        repository.setCurrentRoot(element);
-        repository.getCurrentFiles().forEach(element1 -> {
-            makeBranch(element, treeItem);
+    private void loadChildren(TreeItem<FileBrowserElement> treeItem) {
+        treeItem.getChildren().clear();
+        repository.getCurrentFiles().forEach(child -> {
+            if (child.isDirectory()) makeBranch(child, treeItem);
         });
     }
+
+
+
+    /**
+     * Make branch of element in root element
+     *
+     * @param element inner element
+     * @param root    root element
+     * @return new branch
+     */
+    private TreeItem<FileBrowserElement> makeBranch(FileBrowserElement element, TreeItem<FileBrowserElement> root) {
+        TreeItem<FileBrowserElement> newBranch = new TreeItem<>(element);
+        root.getChildren().add(newBranch);
+        return newBranch;
+    }
+
+    /**
+     * Generate treeView of file items
+     * TODO: work with VUFS items
+     *
+     * @return tree view
+     */
+    public TreeView<FileBrowserElement> getFileBrowserTreeView() {
+        TreeView<FileBrowserElement> tree = new TreeView<>();
+        TreeItem<FileBrowserElement> root = new TreeItem<>(repository.getCurrentParent());
+
+        repository.getCurrentFiles().forEach(fileItem -> {
+            makeBranch(fileItem, root);
+        });
+
+        tree.setRoot(root);
+        tree.setPrefWidth(200);
+        setTreeCellFactory(tree);
+        //tree.setShowRoot(false);
+        root.setExpanded(true);
+        currentTree.setValue(tree);
+        return tree;
+    }
+
+    /**
+     * select element in bread crumb bar
+     *
+     * @param elem selected item
+     */
+    private void setSelectedCrumbElem(TreeItem<FileBrowserElement> elem) {
+        breadCrumbBar.selectedCrumbProperty().set(elem);
+    }
+
+    /**
+     * Generate treeView of settings items
+     * TODO: work with Repository
+     *
+     * @return tree view
+     */
+    public TreeView<FileBrowserElement> getSettingsTreeView() {
+        TreeView<FileBrowserElement> tree = new TreeView<>();
+        TreeItem<FileBrowserElement> root = new TreeItem<>(new FileItem("Settings"));
+
+        TreeItem<FileBrowserElement> outer1, outer2, inner1, inner2;
+        outer1 = makeBranch(new FileItem("Account"), root);
+        outer2 = makeBranch(new FileItem("Clouds"), root);
+        makeBranch(new FileItem("Dropbox"), outer2);
+        makeBranch(new FileItem("Google Drive"), outer2);
+        makeBranch(new FileItem("Sync"), root);
+        makeBranch(new FileItem("Encription"), root);
+
+        tree.setRoot(root);
+        tree.setPrefWidth(200);
+
+        setTreeCellFactory(tree);
+
+
+        tree.setShowRoot(false);
+        currentTree.setValue(tree);
+        return tree;
+    }
+
+    /**
+     * Customizing treeView
+     *
+     * @param tree treeView
+     */
+    private void setTreeCellFactory(TreeView<FileBrowserElement> tree) {
+        PseudoClass firstElementPseudoClass = PseudoClass.getPseudoClass("first-tree-item");
+
+        tree.setCellFactory(param -> new TreeCell<FileBrowserElement>() {
+            @Override
+            public void updateItem(FileBrowserElement item, boolean empty) {
+                super.updateItem(item, empty);
+                //setDisclosureNode(null);
+
+                if (empty) {
+                    setText("");
+                    setGraphic(null);
+                } else {
+                    String name = item.getName();
+                    if (name.equals("root")){
+                        name = "Files";
+                        pseudoClassStateChanged(firstElementPseudoClass, true);
+                        setDisclosureNode(null);
+
+                    }
+                    setText(name);
+
+                }
+            }
+
+        });
+
+        tree.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null) {
+                System.out.println(newValue.getValue());
+            }
+        });
+    }
+
+    /**
+     * @return bread crumb bar
+     */
+    public BreadCrumbBar<FileBrowserElement> getBreadCrumbBar() {
+        return breadCrumbBar;
+    }
+
+    @Autowired
+    public void setRepository(FilesRepository repository) {
+        this.repository = repository;
+    }
+
 
     /**
      * temporary method
@@ -144,129 +274,5 @@ public class TreeViewFactory {
         });
 
         return tree;
-    }
-
-    /**
-     * Make branch of element in root element
-     *
-     * @param element inner element
-     * @param root    root element
-     * @return new branch
-     */
-    private TreeItem<FileBrowserElement> makeBranch(FileBrowserElement element, TreeItem<FileBrowserElement> root) {
-        TreeItem<FileBrowserElement> newBranch = new TreeItem<>(element);
-        root.getChildren().add(newBranch);
-        return newBranch;
-    }
-
-    /**
-     * Generate treeView of file items
-     * TODO: work with VUFS items
-     *
-     * @return tree view
-     */
-    public TreeView<FileBrowserElement> getFileBrowserTreeView() {
-        TreeView<FileBrowserElement> tree = new TreeView<>();
-        TreeItem<FileBrowserElement> root = new TreeItem<>(repository.getCurrentRoot());
-
-        repository.getCurrentFiles().forEach(fileItem -> {
-            makeBranch(fileItem, root);
-        });
-
-       /* TreeItem<FileBrowserElement> outer1, outer2, inner1, inner2;
-        outer1 = makeBranch(new SimpleTreeElement("Folder1", 1), root);
-        makeBranch(new SimpleTreeElement("Documents", 2), root);
-        outer2 = makeBranch(new SimpleTreeElement("MyFotos", 3), outer1);
-        makeBranch(new SimpleTreeElement("NewFolder", 7), outer2);
-        makeBranch(new SimpleTreeElement("OtherFiles", 4), outer1);
-        makeBranch(new SimpleTreeElement("WorkFiles", 5), root);
-        makeBranch(new SimpleTreeElement("Projects", 6), root);*/
-
-        tree.setRoot(root);
-        tree.setPrefWidth(200);
-
-        setTreeCellFactory(tree);
-        tree.setShowRoot(false);
-        currentTree.setValue(tree);
-        return tree;
-    }
-
-    /**
-     * select element in bread crumb bar
-     *
-     * @param elem selected item
-     */
-    private void setSelectedCrumbElem(TreeItem<FileBrowserElement> elem) {
-        breadCrumbBar.selectedCrumbProperty().set(elem);
-    }
-
-    /**
-     * Generate treeView of settings items
-     * TODO: work with Repository
-     *
-     * @return tree view
-     */
-    public TreeView<FileBrowserElement> getSettingsTreeView() {
-        TreeView<FileBrowserElement> tree = new TreeView<>();
-        TreeItem<FileBrowserElement> root = new TreeItem<>(new SimpleTreeElement("Settings", 0));
-
-        TreeItem<FileBrowserElement> outer1, outer2, inner1, inner2;
-        outer1 = makeBranch(new SimpleTreeElement("Account", 1), root);
-        outer2 = makeBranch(new SimpleTreeElement("Clouds", 2), root);
-        makeBranch(new SimpleTreeElement("Dropbox", 3), outer2);
-        makeBranch(new SimpleTreeElement("Google Drive", 4), outer2);
-        makeBranch(new SimpleTreeElement("Sync", 5), root);
-        makeBranch(new SimpleTreeElement("Encription", 6), root);
-
-        tree.setRoot(root);
-        tree.setPrefWidth(200);
-
-        setTreeCellFactory(tree);
-
-
-        tree.setShowRoot(false);
-        currentTree.setValue(tree);
-        return tree;
-    }
-
-    /**
-     * Customizing treeView
-     *
-     * @param tree treeView
-     */
-    private void setTreeCellFactory(TreeView<FileBrowserElement> tree) {
-        tree.setCellFactory(param -> new TreeCell<FileBrowserElement>() {
-            @Override
-            public void updateItem(FileBrowserElement item, boolean empty) {
-                super.updateItem(item, empty);
-                //setDisclosureNode(null);
-
-                if (empty) {
-                    setText("");
-                    setGraphic(null);
-                } else {
-                    setText(item.getName());
-                }
-            }
-
-        });
-
-        tree.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue != null) {
-                System.out.println(newValue.getValue());
-            }
-        });
-    }
-
-    /**
-     * @return bread crumb bar
-     */
-    public BreadCrumbBar<FileBrowserElement> getBreadCrumbBar() {
-        return breadCrumbBar;
-    }
-
-    @Autowired
-    public void setRepository(FilesRepository repository) {
-        this.repository = repository;
     }
 }

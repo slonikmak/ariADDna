@@ -18,3 +18,14 @@
 .tree-cell:sub-tree-item {
     -fx-padding: 0.25em ;
 }
+.tree-cell:first-tree-item{
+    -fx-text-fill: black;
+    -fx-font-size: 20px;
+    -fx-font-family: System;
+}
+.tree-cell:first-tree-item:selected{
+    -fx-font-weight: normal;
+}
+.tree-disclosure-node .arrow {
+    -fx-pref-width: 0px;
+}

@@ -1,7 +1,6 @@
 package com.stnetix.ariaddna.desktopgui.controllers;
 
 import com.stnetix.ariaddna.desktopgui.models.FileBrowserElement;
-import com.stnetix.ariaddna.desktopgui.models.FileItem;
 import com.stnetix.ariaddna.desktopgui.models.FilesRepository;
 import com.stnetix.ariaddna.desktopgui.views.FileItemView;
 import javafx.collections.FXCollections;
@@ -24,13 +23,14 @@ import java.util.ResourceBundle;
  */
 @Component
 public class FileBrowserController implements IGuiController, Initializable {
+
     private ObservableList<FileItemView> list = FXCollections.observableArrayList();
     private FilesRepository repository;
 
     @FXML
     private StackPane container;
 
-    GridView<FileBrowserElement> myGrid;
+    private GridView<FileBrowserElement> myGrid;
 
 
     /**
@@ -48,27 +48,17 @@ public class FileBrowserController implements IGuiController, Initializable {
                     setText(null);
                     setGraphic(null);
                 } else {
-                    //setText(item.getName());
-                    setGraphic(new FileItemView("icon", item.getName()));
+                    setGraphic(new FileItemView(item.getName(), item));
+                    setOnMouseClicked(event -> {
+                        if (item.isDirectory()) repository.setCurrentParent(item);
+                    });
                 }
 
             }
         });
+
+
         container.getChildren().add(myGrid);
-        showContent();
-    }
-
-
-    /**
-     * Method for generate file items for fileBrowser and add it into container(temporary realization)
-     */
-    private void showContent() {
-
-        list.addAll(new FileItemView("icon", "Folder1"),
-                new FileItemView("icon", "Documents"),
-                new FileItemView("icon", "WorkFiles"),
-                new FileItemView("icon", "Projects"));
-
     }
 
     @Autowired

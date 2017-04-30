@@ -11,19 +11,26 @@ import java.nio.file.Paths;
 public class FileItem implements FileBrowserElement{
     private Path path;
     private String name;
-    FileItem parent;
-    long id;
+    private FileBrowserElement parent = null;
+    private long id;
+    private boolean isDirectory;
 
     FileItem(){
 
     }
 
-    FileItem(Path path){
+    public FileItem(Path path){
         this.path = path;
     }
 
-    FileItem(String path){
+    public FileItem(String path){
         this.path = Paths.get(path);
+        this.isDirectory = true;
+    }
+
+    public FileItem(String path, boolean isDirectory){
+        this.path = Paths.get(path);
+        this.isDirectory = isDirectory;
     }
 
     public Path getPath() {
@@ -48,15 +55,20 @@ public class FileItem implements FileBrowserElement{
         this.name = name;
     }
 
-    public FileItem getParent() {
+    public FileBrowserElement getParent() {
         return parent;
     }
 
-    public void setParent(FileItem parent) {
+    @Override
+    public boolean isDirectory() {
+        return isDirectory;
+    }
+
+    public void setParent(FileBrowserElement parent) {
         this.parent = parent;
     }
 
-    public Path getRootPath(){
+    public Path getParentPath(){
         return path.getParent();
     }
 }

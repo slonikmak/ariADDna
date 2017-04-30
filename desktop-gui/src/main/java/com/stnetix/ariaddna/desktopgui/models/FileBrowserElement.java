@@ -8,6 +8,8 @@ import java.nio.file.Path;
 public interface FileBrowserElement {
     String getName();
     long getId();
-    Path getRootPath();
+    Path getParentPath();
     Path getPath();
+    FileBrowserElement getParent();
+    boolean isDirectory();
 }

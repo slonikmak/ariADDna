@@ -27,13 +27,23 @@ public class SimpleTreeElement implements FileBrowserElement{
     }
 
     @Override
-    public Path getRootPath() {
+    public Path getParentPath() {
         return null;
     }
 
     @Override
     public Path getPath() {
         return null;
+    }
+
+    @Override
+    public FileBrowserElement getParent() {
+        return null;
+    }
+
+    @Override
+    public boolean isDirectory() {
+        return false;
     }
 
     @Override

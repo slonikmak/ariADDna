@@ -1,5 +1,7 @@
 package com.stnetix.ariaddna.desktopgui.views;
 
+import com.stnetix.ariaddna.desktopgui.models.FileBrowserElement;
+import com.stnetix.ariaddna.desktopgui.models.FileItem;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import javafx.scene.control.Label;
@@ -14,14 +16,27 @@ public class FileItemView extends VBox {
     private FontAwesomeIconView icon;
     private Label fileName;
     private String name;
+    private FileBrowserElement fileBrowserElement;
 
-    public FileItemView(String icon, String fileName) {
+    public FileItemView(String fileName, FileBrowserElement fileBrowserElement) {
         super();
         this.name = fileName;
-        this.icon = new FontAwesomeIconView(FontAwesomeIcon.FOLDER_ALT);
-        this.icon.setStyleClass("file-item-icon");
         this.fileName = new Label(fileName);
+        this.fileBrowserElement = fileBrowserElement;
+
+        setIcon();
+
         this.getChildren().addAll(this.icon, this.fileName);
+    }
+
+    private void setIcon(){
+        if (fileBrowserElement.isDirectory()){
+            this.icon = new FontAwesomeIconView(FontAwesomeIcon.FOLDER_ALT);
+        } else {
+            this.icon = new FontAwesomeIconView(FontAwesomeIcon.IMAGE);
+        }
+        this.icon.setStyleClass("file-item-icon");
+
     }
 
     public String getName() {
@@ -31,4 +46,5 @@ public class FileItemView extends VBox {
     public FontAwesomeIconView getIcon() {
         return icon;
     }
+
 }

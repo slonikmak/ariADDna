@@ -41,7 +41,6 @@ public class FileBrowserController implements IGuiController, Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         if (myGrid == null) {
-            System.out.println("init");
             myGrid = new GridView<>(repository.getCurrentFiles());
             myGrid.setCellFactory(gridView -> new GridCell<FileBrowserElement>() {
                 @Override

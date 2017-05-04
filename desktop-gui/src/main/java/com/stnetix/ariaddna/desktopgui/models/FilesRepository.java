@@ -20,4 +20,5 @@ public interface FilesRepository {
 
     Optional<FileBrowserElement> getFileByPath(Path path);
 
+    void setCurrentRoot(Path path);
 }

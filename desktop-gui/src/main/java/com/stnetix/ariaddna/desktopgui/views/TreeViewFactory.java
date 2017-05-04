@@ -45,7 +45,6 @@ public class TreeViewFactory {
         breadCrumbBar = new BreadCrumbBar<>();
 
         breadCrumbBar.setCrumbFactory(treeItem -> {
-            //if (treeItem.getParent() == treeItem) System.out.println("root");
             FontAwesomeIconView icon = new FontAwesomeIconView(FontAwesomeIcon.ANGLE_RIGHT);
             icon.setGlyphSize(20);
             String name = treeItem.getValue().getName().equals("root")?"Files":treeItem.getValue().getName();
@@ -108,7 +107,6 @@ public class TreeViewFactory {
      * file browser TreeView selected listener
      */
     private ListChangeListener<TreeItem<FileBrowserElement>> browserTreeViewSelectedListener = c -> {
-        System.out.println("BROWSER");
         c.next();
         TreeItem<FileBrowserElement> selected = c.getList().get(0);
         repository.setCurrentParent(selected.getValue());
@@ -120,7 +118,6 @@ public class TreeViewFactory {
      * settings TreeView selected listener
      */
     private ListChangeListener<TreeItem<FileBrowserElement>> settingsTreeViewSelectedListener = c -> {
-        System.out.println("SETTINGS");
         c.next();
         TreeItem<FileBrowserElement> selected = c.getList().get(0);
         setSelectedCrumbElem(selected);
@@ -217,7 +214,6 @@ public class TreeViewFactory {
 
         tree.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
-                System.out.println(newValue.getValue());
             }
         });
     }

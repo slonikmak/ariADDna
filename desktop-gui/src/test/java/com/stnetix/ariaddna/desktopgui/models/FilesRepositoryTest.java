@@ -1,8 +1,8 @@
 package com.stnetix.ariaddna.desktopgui.models;
 
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import java.nio.file.Paths;
 
@@ -14,12 +14,12 @@ public class FilesRepositoryTest {
 
     @BeforeAll
     public static void setUp(){
-        repository = new FilesRepository();
+        repository = new FilesRepositoryImpl();
     }
 
     @Test
     public void simpleTest(){
-        repository = new FilesRepository();
+        repository = new FilesRepositoryImpl();
         Assertions.assertEquals(Paths.get("/root"), repository.getCurrentParent().getPath());
     }
 

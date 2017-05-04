@@ -51,7 +51,7 @@
                 </AnchorPane>
                 <AnchorPane maxHeight="30.0" minHeight="30.0" prefHeight="30.0" prefWidth="200.0">
                     <children>
-                        <Label fx:id="header" styleClass="sub-header" text="AriADDna account managment" AnchorPane.leftAnchor="25.0" />
+                        <Label fx:id="header" styleClass="sub-header" text="File Browser" AnchorPane.leftAnchor="25.0"/>
                     </children></AnchorPane>
                 <AnchorPane fx:id="content" maxHeight="1.7976931348623157E308" minHeight="50.0" prefHeight="200.0"
                             prefWidth="200.0">

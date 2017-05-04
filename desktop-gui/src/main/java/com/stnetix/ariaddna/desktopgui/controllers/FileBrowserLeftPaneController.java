@@ -74,7 +74,7 @@ public class FileBrowserLeftPaneController implements IGuiController, Initializa
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         /*
-         * TODO: replace to getting elements from Repository
+         * TODO: replace to getting elements from FilesRepository
          */
         treeViewContainer.getChildren().add(treeViewFactory.getFileBrowserTreeView());
 

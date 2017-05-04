@@ -1,12 +1,11 @@
 package com.stnetix.ariaddna.desktopgui.models;
 
-import javafx.scene.layout.Pane;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
 /**
- * @autor slonikmak on 01.04.2017.
+ * @autor slonikmak
  */
 public class FileItem implements FileBrowserElement{
     private Path path;
@@ -70,5 +69,12 @@ public class FileItem implements FileBrowserElement{
 
     public Path getParentPath(){
         return path.getParent();
+    }
+
+    @Override
+    public String toString() {
+        return "FileItem{" +
+                "path=" + path +
+                '}';
     }
 }

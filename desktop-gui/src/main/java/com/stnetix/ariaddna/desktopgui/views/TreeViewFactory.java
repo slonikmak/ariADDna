@@ -3,12 +3,11 @@ package com.stnetix.ariaddna.desktopgui.views;
 import com.stnetix.ariaddna.desktopgui.models.FileBrowserElement;
 import com.stnetix.ariaddna.desktopgui.models.FileItem;
 import com.stnetix.ariaddna.desktopgui.models.FilesRepository;
+import com.stnetix.ariaddna.desktopgui.models.FilesRepositoryImpl;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.ReadOnlyProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.value.ChangeListener;
 import javafx.collections.ListChangeListener;
 import javafx.css.PseudoClass;
 import javafx.scene.control.Button;
@@ -20,8 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
- * Factory for create TreeView of file items
- * TODO: work with VUFS item
+ * Factory for create TreeView of file and settings items and bread crumb bar
  *
  * @author slonikmak
  */
@@ -31,13 +29,16 @@ public class TreeViewFactory {
     private FilesRepository repository;
 
     //Current treeView element property
-    private ObjectProperty<TreeView<FileBrowserElement>> currentTree = new SimpleObjectProperty<>();
+    private ObjectProperty<TreeView<FileBrowserElement>> currentTreeView = new SimpleObjectProperty<>();
 
     //represent Bread Crumb Bar navigation elem
     private BreadCrumbBar<FileBrowserElement> breadCrumbBar;
 
+    private TreeView<FileBrowserElement> fileBrowserTreeView;
+    private TreeView<FileBrowserElement> settingsTreeView;
+
     /**
-     * constructor, init breadCrumbBar and bind it to currentTree
+     * constructor, init breadCrumbBar and bind it to currentTreeView
      * when changed selected tree item the selected crumb bar element will changed to
      */
     public TreeViewFactory() {
@@ -53,31 +54,77 @@ public class TreeViewFactory {
             return btn;
         });
 
-        currentTree.addListener((observable, oldValue, newValue) -> {
-            setTreeViewSelectedListener();
+        currentTreeView.addListener((observable, oldValue, newValue) -> {
             TreeItem<FileBrowserElement> firstElem = newValue.getTreeItem(0);
             setSelectedCrumbElem(firstElem);
         });
 
-
+        breadCrumbBar.selectedCrumbProperty().addListener((observable, oldValue, newValue) ->
+                currentTreeView.getValue().getSelectionModel().select(newValue));
     }
 
     /**
-     * bind selected tree item and selected bread crumb bar elements
+     * setup settings TreeView
      */
-    private void setTreeViewSelectedListener() {
-        currentTree.getValue().getSelectionModel().getSelectedItems().addListener((ListChangeListener<TreeItem<FileBrowserElement>>) c -> {
-            c.next();
-            TreeItem<FileBrowserElement> selected = c.getList().get(0);
-            repository.setCurrentParent(selected.getValue());
-            setSelectedCrumbElem(selected);
-            loadChildren(selected);
-        });
+    private void setupSettingsTreeView() {
+        settingsTreeView = new TreeView<>();
+        TreeItem<FileBrowserElement> root = new TreeItem<>(new FileItem("Settings"));
 
-        breadCrumbBar.selectedCrumbProperty().addListener((observable, oldValue, newValue) -> {
-            currentTree.getValue().getSelectionModel().select(newValue);
-        });
+        TreeItem<FileBrowserElement> outer;
+        makeBranch(new FileItem("Account"), root);
+        outer = makeBranch(new FileItem("Clouds"), root);
+        makeBranch(new FileItem("Dropbox"), outer);
+        makeBranch(new FileItem("Google Drive"), outer);
+        makeBranch(new FileItem("Sync"), root);
+        makeBranch(new FileItem("Encription"), root);
+
+        settingsTreeView.setRoot(root);
+        settingsTreeView.setPrefWidth(200);
+
+        setTreeCellFactory(settingsTreeView);
+
+        settingsTreeView.getSelectionModel().getSelectedItems().addListener(settingsTreeViewSelectedListener);
+        settingsTreeView.setShowRoot(false);
     }
+
+    /**
+     * setup file browser TreeView
+     */
+    private void setupBrowserTreeView() {
+        fileBrowserTreeView = new TreeView<>();
+        TreeItem<FileBrowserElement> root = new TreeItem<>(repository.getCurrentParent());
+
+        repository.getCurrentFiles().forEach(fileItem -> makeBranch(fileItem, root));
+
+        fileBrowserTreeView.setRoot(root);
+        fileBrowserTreeView.setPrefWidth(200);
+        setTreeCellFactory(fileBrowserTreeView);
+
+        root.setExpanded(true);
+        fileBrowserTreeView.getSelectionModel().getSelectedItems().addListener(browserTreeViewSelectedListener);
+    }
+
+    /**
+     * file browser TreeView selected listener
+     */
+    private ListChangeListener<TreeItem<FileBrowserElement>> browserTreeViewSelectedListener = c -> {
+        System.out.println("BROWSER");
+        c.next();
+        TreeItem<FileBrowserElement> selected = c.getList().get(0);
+        repository.setCurrentParent(selected.getValue());
+        setSelectedCrumbElem(selected);
+        loadChildren(selected);
+    };
+
+    /**
+     * settings TreeView selected listener
+     */
+    private ListChangeListener<TreeItem<FileBrowserElement>> settingsTreeViewSelectedListener = c -> {
+        System.out.println("SETTINGS");
+        c.next();
+        TreeItem<FileBrowserElement> selected = c.getList().get(0);
+        setSelectedCrumbElem(selected);
+    };
 
     private void loadChildren(TreeItem<FileBrowserElement> treeItem) {
         treeItem.getChildren().clear();
@@ -102,26 +149,16 @@ public class TreeViewFactory {
     }
 
     /**
-     * Generate treeView of file items
-     * TODO: work with VUFS items
+     * return treeView of file items
      *
      * @return tree view
      */
     public TreeView<FileBrowserElement> getFileBrowserTreeView() {
-        TreeView<FileBrowserElement> tree = new TreeView<>();
-        TreeItem<FileBrowserElement> root = new TreeItem<>(repository.getCurrentParent());
-
-        repository.getCurrentFiles().forEach(fileItem -> {
-            makeBranch(fileItem, root);
-        });
-
-        tree.setRoot(root);
-        tree.setPrefWidth(200);
-        setTreeCellFactory(tree);
-        //tree.setShowRoot(false);
-        root.setExpanded(true);
-        currentTree.setValue(tree);
-        return tree;
+        if (fileBrowserTreeView == null) {
+            setupBrowserTreeView();
+        }
+        currentTreeView.setValue(fileBrowserTreeView);
+        return fileBrowserTreeView;
     }
 
     /**
@@ -135,31 +172,15 @@ public class TreeViewFactory {
 
     /**
      * Generate treeView of settings items
-     * TODO: work with Repository
      *
      * @return tree view
      */
     public TreeView<FileBrowserElement> getSettingsTreeView() {
-        TreeView<FileBrowserElement> tree = new TreeView<>();
-        TreeItem<FileBrowserElement> root = new TreeItem<>(new FileItem("Settings"));
-
-        TreeItem<FileBrowserElement> outer1, outer2, inner1, inner2;
-        outer1 = makeBranch(new FileItem("Account"), root);
-        outer2 = makeBranch(new FileItem("Clouds"), root);
-        makeBranch(new FileItem("Dropbox"), outer2);
-        makeBranch(new FileItem("Google Drive"), outer2);
-        makeBranch(new FileItem("Sync"), root);
-        makeBranch(new FileItem("Encription"), root);
-
-        tree.setRoot(root);
-        tree.setPrefWidth(200);
-
-        setTreeCellFactory(tree);
-
-
-        tree.setShowRoot(false);
-        currentTree.setValue(tree);
-        return tree;
+        if (settingsTreeView == null) {
+            setupSettingsTreeView();
+        }
+        currentTreeView.setValue(settingsTreeView);
+        return settingsTreeView;
     }
 
     /**
@@ -209,70 +230,7 @@ public class TreeViewFactory {
     }
 
     @Autowired
-    public void setRepository(FilesRepository repository) {
+    public void setRepository(FilesRepositoryImpl repository) {
         this.repository = repository;
-    }
-
-
-    /**
-     * temporary method
-     *
-     * @return
-     */
-    public TreeView get() {
-        TreeView<String> tree = new TreeView<>();
-        tree.setShowRoot(false);
-        TreeItem<String> root = new TreeItem<>("");
-        tree.setRoot(root);
-
-        ChangeListener<Boolean> expandedListener = (obs, wasExpanded, isNowExpanded) -> {
-            if (isNowExpanded) {
-                System.out.println("expand");
-                ReadOnlyProperty<?> expandedProperty = (ReadOnlyProperty<?>) obs;
-                Object itemThatWasJustExpanded = expandedProperty.getBean();
-                for (TreeItem<String> item : tree.getRoot().getChildren()) {
-                    if (item != itemThatWasJustExpanded) {
-                        item.setExpanded(false);
-                    }
-                }
-            }
-        };
-
-        for (int i = 1; i <= 4; i++) {
-            TreeItem<String> item = new TreeItem<>("Top level " + i);
-            item.expandedProperty().addListener(expandedListener);
-            root.getChildren().add(item);
-            for (int j = 1; j <= 4; j++) {
-                TreeItem<String> subItem = new TreeItem<>("Sub item " + i + ":" + j);
-                item.getChildren().add(subItem);
-            }
-        }
-
-        PseudoClass subElementPseudoClass = PseudoClass.getPseudoClass("sub-tree-item");
-
-        tree.setCellFactory((TreeView<String> tv) -> {
-            TreeCell<String> cell = new TreeCell<String>() {
-                @Override
-                public void updateItem(String item, boolean empty) {
-                    super.updateItem(item, empty);
-                    setDisclosureNode(null);
-
-                    if (empty) {
-                        setText("");
-                        setGraphic(null);
-                    } else {
-                        setText(item); // appropriate text for item
-                    }
-                }
-
-            };
-            cell.treeItemProperty().addListener((obs, oldTreeItem, newTreeItem) -> {
-                cell.pseudoClassStateChanged(subElementPseudoClass,
-                        newTreeItem != null && newTreeItem.getParent() != cell.getTreeView().getRoot());
-            });
-            return cell;
-        });
-
-        return tree;
     }
 }

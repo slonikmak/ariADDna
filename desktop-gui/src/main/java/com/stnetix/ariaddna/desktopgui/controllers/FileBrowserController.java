@@ -1,7 +1,7 @@
 package com.stnetix.ariaddna.desktopgui.controllers;
 
 import com.stnetix.ariaddna.desktopgui.models.FileBrowserElement;
-import com.stnetix.ariaddna.desktopgui.models.FilesRepository;
+import com.stnetix.ariaddna.desktopgui.models.FilesRepositoryImpl;
 import com.stnetix.ariaddna.desktopgui.views.FileItemView;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -25,7 +25,7 @@ import java.util.ResourceBundle;
 public class FileBrowserController implements IGuiController, Initializable {
 
     private ObservableList<FileItemView> list = FXCollections.observableArrayList();
-    private FilesRepository repository;
+    private FilesRepositoryImpl repository;
 
     @FXML
     private StackPane container;
@@ -40,29 +40,33 @@ public class FileBrowserController implements IGuiController, Initializable {
      */
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        myGrid = new GridView<>(repository.getCurrentFiles());
-        myGrid.setCellFactory(gridView -> new GridCell<FileBrowserElement>() {
-            @Override
-            public void updateItem(FileBrowserElement item, boolean empty) {
-                if (empty || item == null) {
-                    setText(null);
-                    setGraphic(null);
-                } else {
-                    setGraphic(new FileItemView(item.getName(), item));
-                    setOnMouseClicked(event -> {
-                        if (item.isDirectory()) repository.setCurrentParent(item);
-                    });
-                }
+        if (myGrid == null) {
+            System.out.println("init");
+            myGrid = new GridView<>(repository.getCurrentFiles());
+            myGrid.setCellFactory(gridView -> new GridCell<FileBrowserElement>() {
+                @Override
+                public void updateItem(FileBrowserElement item, boolean empty) {
+                    if (empty || item == null) {
+                        setText(null);
+                        setGraphic(null);
+                    } else {
+                        setGraphic(new FileItemView(item.getName(), item));
+                        setOnMouseClicked(event -> {
+                            if (item.isDirectory()) repository.setCurrentParent(item);
+                        });
+                    }
 
-            }
-        });
+                }
+            });
+        }
+
 
 
         container.getChildren().add(myGrid);
     }
 
     @Autowired
-    public void setRepository(FilesRepository repository) {
+    public void setRepository(FilesRepositoryImpl repository) {
         this.repository = repository;
     }
 }

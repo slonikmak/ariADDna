@@ -30,7 +30,7 @@ public class SyncSettingsController implements IGuiController, Initializable{
      */
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        //TODO: replace to getting elements from Repository
+        //TODO: replace to getting elements from FilesRepository
         CheckBoxTreeItem<String> root = new CheckBoxTreeItem<>("Root");
         root.setExpanded(true);
         CheckBoxTreeItem<String> folder1 = new CheckBoxTreeItem<>("Folder1");

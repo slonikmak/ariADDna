@@ -4,9 +4,13 @@ import com.stnetix.ariaddna.desktopgui.views.FXMLLoaderProvider;
 import com.stnetix.ariaddna.desktopgui.views.SettingsViewFactory;
 import com.stnetix.ariaddna.desktopgui.views.TreeViewFactory;
 import com.stnetix.ariaddna.desktopgui.views.ViewsFactory;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Dialog;
 import javafx.scene.layout.AnchorPane;
+import javafx.stage.Stage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -38,6 +42,19 @@ public class FileBrowserLeftPaneController implements IGuiController, Initializa
         mainController.setCenterBorderContent(SettingsViewFactory.ACCOUNT.getNode(provider));
     }
 
+    @FXML
+    void createFolder(ActionEvent event) throws IOException {
+        Stage stage = new Stage();
+        Dialog<String> dialog = new Dialog<>();
+        FXMLLoader loader = provider.get("/com/stentix/ariaddna/desktopgui/fxmlViews/createFolder.fxml");
+        dialog.getDialogPane().setContent(loader.load());
+        dialog.showAndWait();
+        /*Scene scene = new Scene(loader.load(), 300, 150);
+        stage.initModality(Modality.WINDOW_MODAL);
+        stage.setScene(scene);
+        stage.showAndWait();*/
+    }
+
     /**
      * inject MainController
      * @param mainController
@@ -48,7 +65,7 @@ public class FileBrowserLeftPaneController implements IGuiController, Initializa
     }
 
     /**
-     * inject MFXMLLoaderProvider
+     * inject FXMLLoaderProvider
      * @param provider
      */
     @Autowired

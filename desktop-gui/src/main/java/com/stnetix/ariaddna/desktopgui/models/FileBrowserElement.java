@@ -12,4 +12,6 @@ public interface FileBrowserElement {
     Path getPath();
     FileBrowserElement getParent();
     boolean isDirectory();
+
+    void setIsDirectory(boolean isDirectory);
 }

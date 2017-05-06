@@ -1,5 +1,7 @@
 package com.stnetix.ariaddna.desktopgui.models;
 
+import javafx.collections.ObservableList;
+
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
@@ -10,13 +12,17 @@ import java.util.Optional;
 public interface FilesRepository {
     void addFileItems(String... items);
 
+    void addFileItem(FileBrowserElement file);
+
+    FileBrowserElement addNewFile(String folderName, boolean isDirectory);
+
     FileBrowserElement getCurrentParent();
 
     void setCurrentParent(FileBrowserElement parent);
 
     List<FileBrowserElement> getChildren(FileBrowserElement parent);
 
-    List<FileBrowserElement> getCurrentFiles();
+    ObservableList<FileBrowserElement> getCurrentFiles();
 
     Optional<FileBrowserElement> getFileByPath(Path path);
 

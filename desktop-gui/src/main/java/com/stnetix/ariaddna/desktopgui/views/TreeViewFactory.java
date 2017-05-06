@@ -18,6 +18,8 @@ import org.controlsfx.control.BreadCrumbBar;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
+
 /**
  * Factory for create TreeView of file and settings items and bread crumb bar
  *
@@ -36,6 +38,8 @@ public class TreeViewFactory {
 
     private TreeView<FileBrowserElement> fileBrowserTreeView;
     private TreeView<FileBrowserElement> settingsTreeView;
+
+    private TreeItem<FileBrowserElement> selectedTreeItem;
 
     /**
      * constructor, init breadCrumbBar and bind it to currentTreeView
@@ -60,6 +64,15 @@ public class TreeViewFactory {
 
         breadCrumbBar.selectedCrumbProperty().addListener((observable, oldValue, newValue) ->
                 currentTreeView.getValue().getSelectionModel().select(newValue));
+
+
+    }
+
+    @PostConstruct
+    public void setupTreeView() {
+        repository.getCurrentFiles().addListener((ListChangeListener<FileBrowserElement>) c -> {
+            loadChildren(getSelectedTreeItem());
+        });
     }
 
     /**
@@ -109,6 +122,7 @@ public class TreeViewFactory {
     private ListChangeListener<TreeItem<FileBrowserElement>> browserTreeViewSelectedListener = c -> {
         c.next();
         TreeItem<FileBrowserElement> selected = c.getList().get(0);
+        selectedTreeItem = selected;
         repository.setCurrentParent(selected.getValue());
         setSelectedCrumbElem(selected);
         loadChildren(selected);
@@ -223,6 +237,10 @@ public class TreeViewFactory {
      */
     public BreadCrumbBar<FileBrowserElement> getBreadCrumbBar() {
         return breadCrumbBar;
+    }
+
+    private TreeItem<FileBrowserElement> getSelectedTreeItem() {
+        return selectedTreeItem;
     }
 
     @Autowired

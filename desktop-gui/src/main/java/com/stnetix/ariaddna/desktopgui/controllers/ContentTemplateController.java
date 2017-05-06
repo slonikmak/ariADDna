@@ -1,7 +1,6 @@
 package com.stnetix.ariaddna.desktopgui.controllers;
 
 import com.stnetix.ariaddna.desktopgui.models.FileBrowserElement;
-import com.stnetix.ariaddna.desktopgui.views.SimpleTreeElement;
 import com.stnetix.ariaddna.desktopgui.views.TreeViewFactory;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;

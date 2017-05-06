@@ -46,5 +46,12 @@ public class FilesRepositoryTest {
         Assertions.assertFalse(repository.getFileByPath(Paths.get("/rooot")).isPresent());
     }
 
+    @Test
+    public void addFolderTest() {
+        FileBrowserElement parent = repository.getCurrentParent();
+        FileBrowserElement newFolder = repository.addNewFile("NewFolder", true);
+        Assertions.assertEquals(parent.getPath(), newFolder.getParentPath());
+    }
+
 
 }

@@ -1,21 +1,21 @@
 package com.stnetix.ariaddna.desktopgui.controllers;
 
+import com.stnetix.ariaddna.desktopgui.models.FilesRepository;
 import com.stnetix.ariaddna.desktopgui.views.FXMLLoaderProvider;
 import com.stnetix.ariaddna.desktopgui.views.SettingsViewFactory;
 import com.stnetix.ariaddna.desktopgui.views.TreeViewFactory;
 import com.stnetix.ariaddna.desktopgui.views.ViewsFactory;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Dialog;
+import javafx.scene.control.TextInputDialog;
 import javafx.scene.layout.AnchorPane;
-import javafx.stage.Stage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.Optional;
 import java.util.ResourceBundle;
 
 /**
@@ -28,6 +28,7 @@ public class FileBrowserLeftPaneController implements IGuiController, Initializa
     private MainController mainController;
     private FXMLLoaderProvider provider;
     private TreeViewFactory treeViewFactory;
+    private FilesRepository repository;
 
     @FXML
     private AnchorPane treeViewContainer;
@@ -44,15 +45,22 @@ public class FileBrowserLeftPaneController implements IGuiController, Initializa
 
     @FXML
     void createFolder(ActionEvent event) throws IOException {
-        Stage stage = new Stage();
+        /*Stage stage = new Stage();
         Dialog<String> dialog = new Dialog<>();
         FXMLLoader loader = provider.get("/com/stentix/ariaddna/desktopgui/fxmlViews/createFolder.fxml");
         dialog.getDialogPane().setContent(loader.load());
-        dialog.showAndWait();
+        dialog.showAndWait();*/
         /*Scene scene = new Scene(loader.load(), 300, 150);
         stage.initModality(Modality.WINDOW_MODAL);
         stage.setScene(scene);
         stage.showAndWait();*/
+        TextInputDialog dialog = new TextInputDialog();
+        dialog.setTitle("Create new folder");
+        dialog.setHeaderText("Create new folder");
+        dialog.setContentText("Please enter folder name:");
+        Optional<String> result = dialog.showAndWait();
+        result.ifPresent(name -> repository.addNewFile(name, true));
+
     }
 
     /**
@@ -80,6 +88,11 @@ public class FileBrowserLeftPaneController implements IGuiController, Initializa
     @Autowired
     public void setTreeViewFactory(TreeViewFactory treeViewFactory) {
         this.treeViewFactory = treeViewFactory;
+    }
+
+    @Autowired
+    public void setRepository(FilesRepository repository) {
+        this.repository = repository;
     }
 
     /**

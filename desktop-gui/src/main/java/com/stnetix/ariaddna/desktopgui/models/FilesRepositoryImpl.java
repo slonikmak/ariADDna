@@ -6,6 +6,7 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import org.springframework.stereotype.Repository;
 
@@ -45,14 +46,22 @@ public class FilesRepositoryImpl implements FilesRepository {
         });
 
         currentParent.setValue(allFiles.stream().filter(item -> item.getPath().equals(Paths.get("/root"))).findFirst().get());
-        System.out.println(currentParent);
+
+        allFiles.addListener((ListChangeListener<FileBrowserElement>) c -> {
+            c.next();
+            if (c.wasAdded()) {
+                currentFiles.addAll(c.getAddedSubList().stream()
+                        .filter(e -> e.getParentPath().equals(currentParent.getValue().getPath()))
+                        .collect(Collectors.toList()));
+            }
+        });
     }
 
     /**
      * temporary method for fill files set
      * files structure:  /root/outerFolder/innerFolder/someFolder/file.tmp
      */
-    public void fillFilesSet() {
+    private void fillFilesSet() {
         addFileItems("/root", "/root/Photos", "/root/Docs", "/root/videos",
                 "/root/Docs/Office", "/root/Docs/Work", "/root/Docs/Work/file1.jpg", "/root/Docs/Work/file2.jpg");
     }
@@ -65,6 +74,20 @@ public class FilesRepositoryImpl implements FilesRepository {
             } else allFiles.add(new FileItem(item));
 
         });
+    }
+
+    @Override
+    public void addFileItem(FileBrowserElement file) {
+        allFiles.add(file);
+    }
+
+    @Override
+    public FileBrowserElement addNewFile(String folderName, boolean isDirectory) {
+        FileBrowserElement newFolder = new FileItem(getCurrentParent().getPath().resolve(folderName));
+        if (isDirectory) newFolder.setIsDirectory(true);
+        allFiles.add(newFolder);
+        LOGGER.debug("Add new folder: " + newFolder.getPath());
+        return newFolder;
     }
 
     public FileBrowserElement getCurrentParent() {

@@ -63,6 +63,11 @@ public class FileItem implements FileBrowserElement{
         return isDirectory;
     }
 
+    @Override
+    public void setIsDirectory(boolean isDirectory) {
+        this.isDirectory = isDirectory;
+    }
+
     public void setParent(FileBrowserElement parent) {
         this.parent = parent;
     }
